@@ -1,16 +1,17 @@
 from socket import create_connection
-from ssl import SSLContext, PROTOCOL_TLS_CLIENT
+from ssl import CERT_NONE, SSLContext, PROTOCOL_TLS_CLIENT
 
 
-hostname='example.org'
-ip = '127.0.0.1'
-port = 8443
+ip = '192.168.1.50'
+hostname='192.168.1.50'
+port = 4544
 context = SSLContext(PROTOCOL_TLS_CLIENT)
-context.load_verify_locations('cert.pem')
-
+# context.load_verify_locations('Medtronic.pem')
+context.check_hostname = False
+context.verify_mode = CERT_NONE
 with create_connection((ip, port)) as client:
-    with context.wrap_socket(client, server_hostname=hostname) as tls:
-        print(f'Using {tls.version()}\n')
+    with context.wrap_socket(client, server_hostname=hostname, server_side=False ) as tls:
+        print(f'Using {tls.version()}')
         tls.sendall(b'Hello, world')
 
         data = tls.recv(1024)
